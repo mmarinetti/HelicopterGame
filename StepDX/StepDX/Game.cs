@@ -45,6 +45,42 @@ namespace StepDX
         private long lastTime;
 
         /// <summary>
+        /// ZSP
+        /// The player's score for the game
+        /// </summary>
+        private decimal score;
+
+        /// <summary>
+        /// ZSP
+        /// The player's highest score
+        /// </summary>
+        private decimal highScore = 0;
+
+        /// <summary>
+        /// ZSP
+        /// tells us if the player has crashed
+        /// </summary>
+        private bool crashed = false;
+
+        /// <summary>
+        /// ZSP
+        /// The sprite used for the text
+        /// </summary>
+        private Sprite textSprite;
+
+        /// <summary>
+        /// ZSP
+        /// The font for the sprite text
+        /// </summary>
+        private Microsoft.DirectX.Direct3D.Font d3dFont;
+
+        /// <summary>
+        /// ZSP
+        /// Another font thing
+        /// </summary>
+        private System.Drawing.Font gdiFont;
+
+        /// <summary>
         /// A stopwatch to use to keep track of time
         /// </summary>
         private System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
@@ -66,8 +102,6 @@ namespace StepDX
 
         const float gravity = (float)-9.8;
 
-        private bool standingOn = true;
-
         float numFrame = 1;
 
         List<Background> backgrounds = new List<Background>();
@@ -78,14 +112,36 @@ namespace StepDX
             if (!InitializeDirect3D())
                 return;
 
-            vertices = new VertexBuffer(typeof(CustomVertex.PositionColored), // Type of vertex
-                                        4,      // How many
-                                        device, // What device
-                                        0,      // No special usage
-                                        CustomVertex.PositionColored.Format,
-                                        Pool.Managed);
+            InitializeComponent();
+            if (!InitializeDirect3D())
+                return;
 
-            background = new Background(device, playingW*numFrame, playingH,(playingW*numFrame)-playingW);
+            Init();
+
+        }
+
+        /// <summary>
+        /// ZSP
+        /// Initializes our gamestate
+        /// </summary>
+        public void Init()
+        {
+            vertices = new VertexBuffer(typeof(CustomVertex.PositionColored), // Type of vertex
+                            4,      // How many
+                            device, // What device
+                            0,      // No special usage
+                            CustomVertex.PositionColored.Format,
+                            Pool.Managed);
+
+            //ZSP set up the score
+            score = 0;
+            crashed = false;
+            textSprite = new Sprite(device);
+            numFrame = 1;
+            gdiFont = new System.Drawing.Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular);
+            d3dFont = new Microsoft.DirectX.Direct3D.Font(device, gdiFont);
+
+            background = new Background(device, playingW * numFrame, playingH, (playingW * numFrame) - playingW);
             backgrounds.Add(background);
 
             // Determine the last time
@@ -149,8 +205,8 @@ namespace StepDX
             player.AddTex(new Vector2(0.125f, 1));
             player.Color = Color.Transparent;
             player.Transparent = true;
-            player.P = new Vector2(0.5f, 3.0f);
-            player.A = new Vector2(0,gravity);
+            player.P = new Vector2(0.5f, 2.7f);
+            player.A = new Vector2(0, gravity);
         }
 
         /// <summary>
@@ -219,16 +275,46 @@ namespace StepDX
 
             player.Render(device);
 
+            //ZSP, render the score text last
+
+            textSprite.Begin(SpriteFlags.AlphaBlend);
+            Math.Round(score, 2);
+            Math.Round(highScore, 2);
+            string strScore = "Score: " + score.ToString();
+
+            if (!crashed)
+            {
+                d3dFont.DrawText(textSprite, strScore, 20, 20, Color.White);
+            }
+            else
+            {
+                string strGameOver = "GAME OVER";
+                string strPlayAgain = "Press 'P' to play again!";
+                if (score > highScore)
+                {
+                    highScore = score;
+                }
+                string strHighScore = "High Score: " + highScore.ToString();
+
+                gdiFont = new System.Drawing.Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular);
+                d3dFont = new Microsoft.DirectX.Direct3D.Font(device, gdiFont);
+
+                d3dFont.DrawText(textSprite, strScore, 350, 225, Color.White);
+                d3dFont.DrawText(textSprite, strHighScore, 350, 240, Color.White);
+                d3dFont.DrawText(textSprite, strPlayAgain, 350, 255, Color.White);
+
+                gdiFont = new System.Drawing.Font(FontFamily.GenericSansSerif, 26.0f, FontStyle.Regular);
+                d3dFont = new Microsoft.DirectX.Direct3D.Font(device, gdiFont);
+
+                d3dFont.DrawText(textSprite, strGameOver, 325, 190, Color.White);
+            }
+
+            textSprite.End();
+
             //End the scene
             device.EndScene();
             device.Present();
         }
-
-        protected override void OnKeyPress(KeyPressEventArgs e)
-        {
-            
-        }
-
 
         protected override void OnKeyDown(System.Windows.Forms.KeyEventArgs e)
         {
@@ -252,7 +338,10 @@ namespace StepDX
                 v.Y = 4;
                 player.V = v;
                 player.A = new Vector2(0, -9.8f);
-                standingOn = false;
+            }
+            else if (e.KeyCode == Keys.P && crashed) //ZSP, code for restarting the game if we crash
+            {
+                Init();
             }
 
         }
@@ -274,8 +363,18 @@ namespace StepDX
         {
             // How much time change has there been?
             long time = stopwatch.ElapsedMilliseconds;
-            float delta = (time - lastTime) * 0.001f;       // Delta time in milliseconds
+            //ZSP, do not update delta if we have crashed
+            float delta = 0;
+            if (!crashed)
+            {
+                delta = (time - lastTime) * 0.001f;       // Delta time in milliseconds
+
+                //ZSP, incremement the score
+                score += (Decimal)delta;
+                Math.Round(score, 2);
+            }
             lastTime = time;
+
 
             while (delta > 0)
             {
@@ -315,7 +414,10 @@ namespace StepDX
                                   collision.Depth : -collision.Depth;
                         player.P = player.P + collision.N * depth;
                         Vector2 v = player.V;
-                        if (collision.N.X != 0)
+                        //ZSP
+                        v.X = 0;
+                        v.Y = 0;
+                        /*if (collision.N.X != 0)
                             v.X = 0;
                         if (collision.N.Y != 0)
                         {
@@ -328,7 +430,8 @@ namespace StepDX
                         if (standingOn)
                         {
                             v.Y = -1;
-                        }
+                        }*/
+                        crashed = true;
                         player.V = v;
                         player.Advance(0);
                     }
