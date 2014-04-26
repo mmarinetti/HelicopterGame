@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using Microsoft.DirectX;
 using Microsoft.DirectX.DirectSound;
 
-namespace StepDx
+namespace StepDX
 {
     public class GameSounds
     {
@@ -15,19 +15,19 @@ namespace StepDx
         private SecondaryBuffer[] clank = new SecondaryBuffer[10];
         int clankToUse = 0;
 
-        private SecondaryBuffer nah = null;
-        private SecondaryBuffer arms = null;
+        private SecondaryBuffer explode = null;
+        private SecondaryBuffer thrust = null;
 
         public GameSounds(Form form)
         {
             SoundDevice = new Device();
             SoundDevice.SetCooperativeLevel(form, CooperativeLevel.Priority);
 
-            Load(ref nah, "../../Nah1.wav");
-            Load(ref arms, "../../arms.wav");
+            Load(ref explode, "../../Explosion.wav");
+            Load(ref thrust, "../../Rocket Thrusters.wav");
 
-            for (int i = 0; i < clank.Length; i++)
-                Load(ref clank[i], "../../clank.wav");
+            /*for (int i = 0; i < clank.Length; i++)
+                Load(ref clank[i], "../../clank.wav");*/
         }
 
         private void Load(ref SecondaryBuffer buffer, string filename)
@@ -44,7 +44,7 @@ namespace StepDx
             }
         }
 
-        public void Clank()
+        /*public void Clank()
         {
             clankToUse = (clankToUse + 1) % clank.Length;
 
@@ -53,37 +53,41 @@ namespace StepDx
 
             if (!clank[clankToUse].Status.Playing)
                 clank[clankToUse].Play(0, BufferPlayFlags.Default);
-        }
+        }*/
 
-        public void Nah()
+        public void Explode()
         {
-            if (nah == null)
+            if (explode == null)
                 return;
 
-            if (!nah.Status.Playing)
-                nah.Play(0, BufferPlayFlags.Default);
-        }
-
-        public void Arms()
-        {
-            if (arms == null)
-                return;
-
-            if (!arms.Status.Playing)
+            if (!explode.Status.Playing)
             {
-                arms.SetCurrentPosition(0);
-                arms.Play(0, BufferPlayFlags.Default);
+                if (thrust.Status.Playing)
+                    thrust.Stop();
+                explode.Play(0, BufferPlayFlags.Default);
             }
         }
 
-        public void ArmsEnd()
+        public void Thruster()
+        {
+            if (thrust == null)
+                return;
+
+            if (!thrust.Status.Playing)
+            {
+                thrust.SetCurrentPosition(0);
+                thrust.Play(0, BufferPlayFlags.Default);
+            }
+        }
+
+        /*public void ArmsEnd()
         {
             if (arms == null)
                 return;
 
             if (arms.Status.Playing)
                 arms.Stop();
-        }
+        }*/
 
     }
 }

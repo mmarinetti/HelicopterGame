@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 
+
 namespace StepDX
 {
     public partial class Game : Form
@@ -106,6 +107,8 @@ namespace StepDX
 
         List<Background> backgrounds = new List<Background>();
 
+        GameSounds gamesound;
+
         public Game()
         {
             InitializeComponent();
@@ -126,6 +129,7 @@ namespace StepDX
         /// </summary>
         public void Init()
         {
+            gamesound = new GameSounds(this);
             vertices = new VertexBuffer(typeof(CustomVertex.PositionColored), // Type of vertex
                             4,      // How many
                             device, // What device
@@ -334,6 +338,7 @@ namespace StepDX
             }
             else if (e.KeyCode == Keys.Space) //&& standingOn == true)
             {
+                gamesound.Thruster();
                 Vector2 v = player.V;
                 v.Y = 4;
                 player.V = v;
@@ -431,6 +436,7 @@ namespace StepDX
                         {
                             v.Y = -1;
                         }*/
+                        gamesound.Explode();
                         crashed = true;
                         player.V = v;
                         player.Advance(0);
