@@ -45,6 +45,12 @@ namespace StepDX
         /// </summary>
         private long lastTime;
 
+        private int asteroidIndex = 2;
+
+        private int playerIndex = 1;
+
+        private Random random;
+
         /// <summary>
         /// ZSP
         /// The player's score for the game
@@ -91,6 +97,15 @@ namespace StepDX
         /// </summary>
         List<Polygon> world = new List<Polygon>();
 
+        List<Polygon> hexagons = new List<Polygon>();
+
+        /// <summary>
+        /// All of the polygons that make up our world
+        /// </summary>
+        List<Asteroid> asteroids = new List<Asteroid>();
+
+         
+
         /// <summary>
         /// Our player sprite
         /// </summary>
@@ -119,39 +134,6 @@ namespace StepDX
             if (!InitializeDirect3D())
                 return;
 
-            Init();
-
-        }
-
-        /// <summary>
-        /// ZSP
-        /// Initializes our gamestate
-        /// </summary>
-        public void Init()
-        {
-            gamesound = new GameSounds(this);
-            vertices = new VertexBuffer(typeof(CustomVertex.PositionColored), // Type of vertex
-                            4,      // How many
-                            device, // What device
-                            0,      // No special usage
-                            CustomVertex.PositionColored.Format,
-                            Pool.Managed);
-
-            //ZSP set up the score
-            score = 0;
-            crashed = false;
-            textSprite = new Sprite(device);
-            numFrame = 1;
-            gdiFont = new System.Drawing.Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular);
-            d3dFont = new Microsoft.DirectX.Direct3D.Font(device, gdiFont);
-
-            background = new Background(device, playingW * numFrame, playingH, (playingW * numFrame) - playingW);
-            backgrounds.Add(background);
-
-            // Determine the last time
-            stopwatch.Start();
-            lastTime = stopwatch.ElapsedMilliseconds;
-
             Polygon floor = new Polygon();
             floor.AddVertex(new Vector2(0, 0.1f));
             floor.AddVertex(new Vector2(playingW, 0.1f));
@@ -167,6 +149,9 @@ namespace StepDX
             ceiling.AddVertex(new Vector2(0, 3.9f));
             ceiling.Color = Color.CornflowerBlue;
             world.Add(ceiling);
+
+
+
 
             /*AddObstacle(2, 3, 1.7f, 1.9f, Color.Crimson);
             AddObstacle(4, 4.2f, 1, 2.1f, Color.Coral);
@@ -211,6 +196,66 @@ namespace StepDX
             player.Transparent = true;
             player.P = new Vector2(0.5f, 2.7f);
             player.A = new Vector2(0, gravity);
+
+            
+
+            Init();
+
+
+
+        }
+
+        /// <summary>
+        /// ZSP
+        /// Initializes our gamestate
+        /// </summary>
+        public void Init()
+        {
+            gamesound = new GameSounds(this);
+            vertices = new VertexBuffer(typeof(CustomVertex.PositionColored), // Type of vertex
+                            4,      // How many
+                            device, // What device
+                            0,      // No special usage
+                            CustomVertex.PositionColored.Format,
+                            Pool.Managed);
+
+            //ZSP set up the score
+            score = 0;
+            crashed = false;
+            textSprite = new Sprite(device);
+            numFrame = 1;
+
+            asteroidIndex = 2;
+
+            playerIndex = 1;
+
+            random = new Random();
+
+            gdiFont = new System.Drawing.Font(FontFamily.GenericSansSerif, 10.0f, FontStyle.Regular);
+            d3dFont = new Microsoft.DirectX.Direct3D.Font(device, gdiFont);
+
+            background = new Background(device, playingW * numFrame, playingH, (playingW * numFrame) - playingW);
+            backgrounds.Add(background);
+
+            player.P = new Vector2(0.5f, 2.7f);
+            Vector2 velocity = player.V;
+            velocity.Y = 0f;
+            player.V = velocity;
+            player.A = new Vector2(0, gravity);
+
+
+            hexagons.Clear();           
+
+            addHexagon(new Vector2(5.0f, 1.0f), .45f);
+            asteroids.Add(new Asteroid(device, .5f, new Vector2(5.0f, 1.0f), 1));
+            asteroids.Add(new Asteroid(device, .5f, new Vector2(-10.0f, 1.0f), 2));
+            asteroids.Add(new Asteroid(device, .5f, new Vector2(-15.0f, 1.0f), 3));
+
+            // Determine the last time
+            stopwatch.Start();
+            lastTime = stopwatch.ElapsedMilliseconds;
+
+          
         }
 
         /// <summary>
@@ -265,6 +310,11 @@ namespace StepDX
             //Begin the scene
             device.BeginScene();
 
+            foreach (Polygon h in hexagons)
+            {
+                h.Render(device);
+            }
+
             // Render the background
             //background.Render();
             foreach (Background bg in backgrounds)
@@ -272,9 +322,18 @@ namespace StepDX
                 bg.Render();
             }
 
+            
+
             foreach (Polygon p in world)
             {
                 p.Render(device);
+            }
+
+            
+
+            foreach (Asteroid a in asteroids)
+            {
+                a.Render();
             }
 
             player.Render(device);
@@ -408,12 +467,27 @@ namespace StepDX
                     }
                 }
 
+                if((int)(player.P.X)/(5.0*playerIndex) == 1){
+
+                    float r = (float)(random.NextDouble() * 2.7f) + .5f;
+
+                    addHexagon(new Vector2(5.0f * (playerIndex + 1), r), .45f);
+                    if (hexagons.Count > 3) hexagons.Remove(hexagons.First());
+                    asteroids[asteroidIndex++ % 3].Position = new Vector2(5.0f * (playerIndex++ + 1),r);
+
+                }
+
+       
+
+               
+
                 foreach (Polygon p in world)
                     p.Advance(step);
 
-                foreach (Polygon p in world)
+        
+                foreach (Polygon p in hexagons)
                 {
-                    if (collision.Test(player, p))
+                    if (collision.Test(player, p) || player.P.Y <= .1 || player.P.Y >= 2.9)
                     {
                         float depth = collision.P1inP2 ?
                                   collision.Depth : -collision.Depth;
@@ -465,6 +539,32 @@ namespace StepDX
             poly.AddVertex(new Vector2(left, bottom));
             poly.Color = color;
             world.Add(poly);
+        }
+
+        public void addHexagon(Vector2 position, float size = 1)
+        {
+            Vector2 one = new Vector2(-1.0f, 0) *size + position;
+            Vector2 two = new Vector2(-.5f, 1.0f) * size + position;
+            Vector2 three = new Vector2(.5f, 1.0f) * size + position;
+            Vector2 four = new Vector2(1.0f, 0) * size + position;
+            Vector2 five = new Vector2(.5f, -1.0f) * size + position;
+            Vector2 six = new Vector2(-.5f, -1f) * size + position;
+            Vector2 seven = new Vector2(0, 0) * size + position;
+    
+      
+
+            Polygon poly = new Polygon();
+            poly.AddVertex(one);
+            poly.AddVertex(two);
+            poly.AddVertex(three);
+            poly.AddVertex(four);
+            poly.AddVertex(five);
+            poly.AddVertex(six);
+            poly.Color = Color.Transparent;
+            hexagons.Add(poly);
+
+   
+        
         }
 
         public void AddTriangle(float left, float right, float bottom, float top, Color color)

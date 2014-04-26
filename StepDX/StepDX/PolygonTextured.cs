@@ -88,7 +88,7 @@ namespace StepDX
                 device.RenderState.SourceBlend = Blend.SourceAlpha;
                 device.RenderState.DestinationBlend = Blend.InvSourceAlpha;
             }
-
+          
             device.SetTexture(0, texture);
             device.SetStreamSource(0, verticesV, 0);
             device.VertexFormat = CustomVertex.PositionColoredTextured.Format;
