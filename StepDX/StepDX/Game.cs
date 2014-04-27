@@ -452,7 +452,7 @@ namespace StepDX
         
                 foreach (Polygon p in hexagons)
                 {
-                    if (collision.Test(player, p) || player.P.Y <= .1 || player.P.Y >= 2.9)
+                    if (collision.Test(player, p) || player.P.Y <= .1 || player.P.Y >= 3.9 -.5)
                     {
                         float depth = collision.P1inP2 ?
                                   collision.Depth : -collision.Depth;
