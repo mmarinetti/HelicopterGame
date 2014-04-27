@@ -74,7 +74,7 @@ namespace StepDX
             }
 
             // Create the texture vertices
-            textureC.Clear();
+            /*textureC.Clear();
             if (v.X >= 0)
             {
                 textureC.Add(new Vector2(spriteNum * 0.125f, 1));
@@ -90,7 +90,7 @@ namespace StepDX
                 textureC.Add(new Vector2((spriteNum + 1) * 0.125f, 0));
                 textureC.Add(new Vector2(spriteNum * 0.125f, 0));
                 textureC.Add(new Vector2(spriteNum * 0.125f, 1));
-            }
+            }*/
 
             if (v.Y != 0)
             {

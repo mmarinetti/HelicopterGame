@@ -25,3 +25,12 @@ C:\Users\Zachary\Documents\Visual Studio 2010\Projects\StepDX2\StepDX\StepDX\obj
 C:\Users\Zachary\Documents\Visual Studio 2010\Projects\StepDX2\StepDX\StepDX\obj\x86\Debug\StepDX.Game.resources
 C:\Users\Zachary\Documents\Visual Studio 2010\Projects\StepDX2\StepDX\StepDX\obj\x86\Debug\StepDX.Properties.Resources.resources
 C:\Users\Zachary\Documents\Visual Studio 2010\Projects\StepDX2\StepDX\StepDX\obj\x86\Debug\StepDX.csproj.GenerateResource.Cache
+C:\Users\Ermot_000\Documents\GitHub\HelicopterGame\StepDX\StepDX\bin\Debug\StepDX.exe.config
+C:\Users\Ermot_000\Documents\GitHub\HelicopterGame\StepDX\StepDX\obj\x86\Debug\StepDX.exe
+C:\Users\Ermot_000\Documents\GitHub\HelicopterGame\StepDX\StepDX\obj\x86\Debug\StepDX.pdb
+C:\Users\Ermot_000\Documents\GitHub\HelicopterGame\StepDX\StepDX\bin\Debug\StepDX.exe
+C:\Users\Ermot_000\Documents\GitHub\HelicopterGame\StepDX\StepDX\bin\Debug\StepDX.pdb
+C:\Users\Ermot_000\Documents\GitHub\HelicopterGame\StepDX\StepDX\obj\x86\Debug\StepDX.csprojResolveAssemblyReference.cache
+C:\Users\Ermot_000\Documents\GitHub\HelicopterGame\StepDX\StepDX\obj\x86\Debug\StepDX.Game.resources
+C:\Users\Ermot_000\Documents\GitHub\HelicopterGame\StepDX\StepDX\obj\x86\Debug\StepDX.Properties.Resources.resources
+C:\Users\Ermot_000\Documents\GitHub\HelicopterGame\StepDX\StepDX\obj\x86\Debug\StepDX.csproj.GenerateResource.Cache

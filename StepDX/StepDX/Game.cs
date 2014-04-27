@@ -130,10 +130,6 @@ namespace StepDX
             if (!InitializeDirect3D())
                 return;
 
-            InitializeComponent();
-            if (!InitializeDirect3D())
-                return;
-
             Polygon floor = new Polygon();
             floor.AddVertex(new Vector2(0, 0.1f));
             floor.AddVertex(new Vector2(playingW, 0.1f));
@@ -150,58 +146,27 @@ namespace StepDX
             ceiling.Color = Color.CornflowerBlue;
             world.Add(ceiling);
 
-
-
-
-            /*AddObstacle(2, 3, 1.7f, 1.9f, Color.Crimson);
-            AddObstacle(4, 4.2f, 1, 2.1f, Color.Coral);
-            AddObstacle(5, 6, 2.2f, 2.4f, Color.BurlyWood);
-            AddObstacle(5.5f, 6.5f, 3.2f, 3.4f, Color.PeachPuff);
-            //AddTriangle(6.5f, 7.5f, 2.5f, 2.7f, Color.Chocolate);
-            AddTriangle(6.5f, 7.5f, 2.5f, 2.7f, Color.Chocolate);
-
-            Platform platform = new Platform();
-            platform.AddVertex(new Vector2(3.2f, 2));
-            platform.AddVertex(new Vector2(3.9f, 2));
-            platform.AddVertex(new Vector2(3.9f, 1.8f));
-            platform.AddVertex(new Vector2(3.2f, 1.8f));
-            platform.Color = Color.CornflowerBlue;
-            world.Add(platform);
-
-            Texture texture = TextureLoader.FromFile(device, "../../stone08.bmp");
-            PolygonTextured pt = new PolygonTextured();
-            pt.Tex = texture;
-            pt.AddVertex(new Vector2(1.2f, 3.5f));
-            pt.AddTex(new Vector2(0, 1));
-            pt.AddVertex(new Vector2(1.9f, 3.5f));
-            pt.AddTex(new Vector2(0, 0));
-            pt.AddVertex(new Vector2(1.9f, 3.3f));
-            pt.AddTex(new Vector2(1, 0));
-            pt.AddVertex(new Vector2(1.2f, 3.3f));
-            pt.AddTex(new Vector2(1, 1));
-            pt.Color = Color.Transparent;
-            world.Add(pt);*/
-
-            Texture spritetexture = TextureLoader.FromFile(device, "../../guy8.bmp");
+            Texture spritetexture = TextureLoader.FromFile(device, "../../ship.bmp");
             player.Tex = spritetexture;
-            player.AddVertex(new Vector2(-0.2f, 0));
+            player.AddVertex(new Vector2(0, 0));
             player.AddTex(new Vector2(0, 1));
-            player.AddVertex(new Vector2(-0.2f, 1));
+            player.AddVertex(new Vector2(0, 0.5f));
             player.AddTex(new Vector2(0, 0));
-            player.AddVertex(new Vector2(0.2f, 1));
-            player.AddTex(new Vector2(0.125f, 0));
-            player.AddVertex(new Vector2(0.2f, 0));
-            player.AddTex(new Vector2(0.125f, 1));
+            player.AddVertex(new Vector2(0.175f, 0.5f));
+            player.AddTex(new Vector2(0.35f, 0));
+            player.AddVertex(new Vector2(0.5f, 0.325f));
+            player.AddTex(new Vector2(1, 0.45f));
+            player.AddVertex(new Vector2(0.5f, 0.225f));
+            player.AddTex(new Vector2(1, 0.55f));
+            player.AddVertex(new Vector2(0.175f, 0));
+            player.AddTex(new Vector2(0.35f, 1));
             player.Color = Color.Transparent;
             player.Transparent = true;
+
             player.P = new Vector2(0.5f, 2.7f);
             player.A = new Vector2(0, gravity);
 
-            
-
             Init();
-
-
 
         }
 
