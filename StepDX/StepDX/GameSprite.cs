@@ -25,6 +25,18 @@ namespace StepDX
         private float spriteTime = 0;
         private float spriteRate = 6;   // 6 per second
 
+        private float speedUpMultiplier = 1;
+
+        private bool boosting = false;
+
+        private float boostTime = 7.0f;
+
+        private const float BOOSTCOOLDOWN = 2.0f;
+
+        public bool Boosting { set { boosting = value; } get { return boosting; } }
+
+        public float SpeedUp { set { speedUpMultiplier = value; } get { return speedUpMultiplier; } }
+
         public void SaveState()
         {
             pSave = p;
@@ -48,8 +60,23 @@ namespace StepDX
             // Euler steps
             v.X += a.X * dt;
             v.Y += a.Y * dt;
-            p.X += 2.5f * dt;
+            p.X += 2.5f * dt * speedUpMultiplier;
             p.Y += v.Y * dt;
+
+            if (boosting)
+            {
+                boostTime -= dt;
+                speedUpMultiplier = 3.0f;
+                if (boostTime - BOOSTCOOLDOWN <= 0)
+                {
+                    speedUpMultiplier = 1.0f;
+                }
+                if (boostTime <= 0)
+                {
+                    boosting = false;
+                    boostTime = 5.0f;
+                }
+            }
 
             int spriteNum;
 

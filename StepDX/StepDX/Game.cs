@@ -103,8 +103,10 @@ namespace StepDX
         /// All of the polygons that make up our world
         /// </summary>
         List<Asteroid> asteroids = new List<Asteroid>();
-
-         
+        /// <summary>
+        /// List of the power ups
+        /// </summary>
+        List<Polygon> powerUps = new List<Polygon>();
 
         /// <summary>
         /// Our player sprite
@@ -220,7 +222,9 @@ namespace StepDX
             stopwatch.Start();
             lastTime = stopwatch.ElapsedMilliseconds;
 
-          
+            player.Boosting = false;
+            player.SpeedUp = 1.0f;
+            powerUps.Clear();
         }
 
         /// <summary>
@@ -299,6 +303,11 @@ namespace StepDX
             foreach (Asteroid a in asteroids)
             {
                 a.Render();
+            }
+
+            foreach (Polygon p in powerUps)
+            {
+                p.Render(device);
             }
 
             player.Render(device);
@@ -400,6 +409,10 @@ namespace StepDX
 
                 //ZSP, incremement the score
                 score += (Decimal)delta;
+                if (player.Boosting)
+                {
+                    score += (Decimal)delta;
+                }
                 Math.Round(score, 2);
             }
             lastTime = time;
@@ -442,17 +455,41 @@ namespace StepDX
 
                 }
 
-       
 
+                // Chance to add power up!
+                if (random.NextDouble() * 800.0f > 799.0f)
+                {
+                    float pos = (float)random.NextDouble() * 3.0f;
+                    AddPowerUp(player.P.X + 10.0f, player.P.X + 10.2f, pos, pos + 0.2f);
+                    if (powerUps.Count > 10) powerUps.Remove(powerUps.First());
+                }
                
 
                 foreach (Polygon p in world)
                     p.Advance(step);
 
+                foreach (Polygon p in world)
+                {
+                    if (collision.Test(player, p) || player.P.Y <= .1 || player.P.Y >= 3.9 - .5)
+                    {
+                        float depth = collision.P1inP2 ?
+                                  collision.Depth : -collision.Depth;
+                        player.P = player.P + collision.N * depth;
+                        Vector2 v = player.V;
+                        //ZSP
+                        v.X = 0;
+                        v.Y = 0;
+                        gamesound.Explode();
+                        crashed = true;
+                        player.V = v;
+                        player.Advance(0);
+                    }
+                }
+
         
                 foreach (Polygon p in hexagons)
                 {
-                    if (collision.Test(player, p) || player.P.Y <= .1 || player.P.Y >= 3.9 -.5)
+                    if ((collision.Test(player, p) || player.P.Y <= .1 || player.P.Y >= 3.9 -.5) && !player.Boosting)
                     {
                         float depth = collision.P1inP2 ?
                                   collision.Depth : -collision.Depth;
@@ -479,6 +516,14 @@ namespace StepDX
                         crashed = true;
                         player.V = v;
                         player.Advance(0);
+                    }
+                }
+
+                foreach (Polygon p in powerUps)
+                {
+                    if (collision.Test(player, p) || player.P.Y <= .1 || player.P.Y >= 3.9 - .5)
+                    {
+                        player.Boosting = true;
                     }
                 }
 
@@ -542,6 +587,17 @@ namespace StepDX
             poly.Color = color;
             world.Add(poly);
 
+        }
+
+        public void AddPowerUp(float left, float right, float bottom, float top)
+        {
+            Polygon poly = new Polygon();
+            poly.AddVertex(new Vector2(left, top));
+            poly.AddVertex(new Vector2(right, top));
+            poly.AddVertex(new Vector2(right, bottom));
+            poly.AddVertex(new Vector2(left, bottom));
+            poly.Color = Color.LimeGreen;
+            powerUps.Add(poly);
         }
 
         public void AddObstacleTextured()
