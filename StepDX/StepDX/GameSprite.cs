@@ -74,7 +74,7 @@ namespace StepDX
                 if (boostTime <= 0)
                 {
                     boosting = false;
-                    boostTime = 5.0f;
+                    boostTime = 7.0f;
                 }
             }
 
